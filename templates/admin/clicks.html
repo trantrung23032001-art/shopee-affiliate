@@ -1,0 +1,61 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Click Logs{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom:25px;">📈 Click Logs</h2>
+
+<div class="table-responsive">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Thời gian</th>
+                <th>Sản phẩm</th>
+                <th>Nguồn</th>
+                <th>IP</th>
+                <th>Referrer</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for click in clicks %}
+            <tr>
+                <td>{{ click.id }}</td>
+                <td style="white-space:nowrap;">{{ click.clicked_at.strftime('%d/%m %H:%M') if click.clicked_at else '' }}</td>
+                <td>
+                    {% if click.product %}
+                    <a href="{{ url_for('admin_product_edit', id=click.product.id) }}">{{ click.product.name[:40] }}...</a>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td><span class="source-badge source-{{ click.source }}">{{ click.source }}</span></td>
+                <td style="font-size:0.8rem;">{{ click.ip_address }}</td>
+                <td style="font-size:0.8rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ click.referrer or '-' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+{% if pagination.pages > 1 %}
+<div class="pagination">
+    {% if pagination.has_prev %}
+    <a href="{{ url_for('admin_clicks', page=pagination.prev_num) }}">← Trước</a>
+    {% endif %}
+    
+    {% for p in pagination.iter_pages() %}
+        {% if p %}
+        <a href="{{ url_for('admin_clicks', page=p) }}" class="{{ 'active' if p == pagination.page else '' }}">{{ p }}</a>
+        {% else %}
+        <span>...</span>
+        {% endif %}
+    {% endfor %}
+    
+    {% if pagination.has_next %}
+    <a href="{{ url_for('admin_clicks', page=pagination.next_num) }}">Sau →</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
