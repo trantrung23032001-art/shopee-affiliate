@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: shopee-affiliate
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:create_app() -w 4 -b 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: FLASK_ENV
+        value: production
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        value: admin123
+      - key: SHOPEE_APP_ID
+        value: YOUR_SHOPEE_APP_ID
+      - key: SHOPEE_APP_SECRET
+        value: YOUR_SHOPEE_APP_SECRET
+      - key: BASE_URL
+        value: https://shopee-affiliate.onrender.com
