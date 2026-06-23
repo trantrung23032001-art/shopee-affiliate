@@ -109,31 +109,13 @@ class ShopeeAffiliateService:
         return None
 
     def generate_direct_affiliate_url(self, shopee_url, affiliate_id=None):
-        """
-        Tạo link affiliate trực tiếp (không cần API)
-        Dùng khi chưa có Shopee Affiliate API key
-        
-        Format: https://shope.ee/affiliate/{affiliate_id}?product_url={encoded_url}
-        
-        Args:
-            shopee_url: URL sản phẩm Shopee
-            affiliate_id: Affiliate ID
-        
-        Returns:
-            str: Affiliate URL
-        """
         self._get_config()
-        aid = affiliate_id or self.app_id or 'YOUR_AFFILIATE_ID'
-        
-        # Cách 1: Dùng Shopee Affiliate short link format
-        # Format: https://shope.ee/4pA1XXYZ (cần tạo qua Shopee Affiliate Portal)
-        
-        # Cách 2: Dùng deep link với affiliate tracking
-        import urllib.parse
-        encoded_url = urllib.parse.quote(shopee_url, safe='')
-        affiliate_url = f"https://shope.ee/aff/{aid}?url={encoded_url}"
-        
-        return affiliate_url
+        aid = affiliate_id or self.app_id or ''
+        if aid and aid != 'YOUR_AFFILIATE_ID':
+            import urllib.parse
+            encoded_url = urllib.parse.quote(shopee_url, safe='')
+            return f"https://shope.ee/aff/{aid}?url={encoded_url}"
+        return shopee_url
 
 
 # Singleton instance
