@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Voucher {{ voucher.code }} - Hot Deal{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="fade-in" style="max-width:600px;margin:30px auto;">
+        <!-- Voucher Card -->
+        <div style="background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.15);">
+            <div style="background:linear-gradient(135deg,#ee4d2d,#ff6533);color:white;padding:30px;text-align:center;">
+                <h2>🎫 VOUCHER</h2>
+                <div style="font-size:3rem;font-weight:700;margin:15px 0;">
+                    {% if voucher.discount_type == 'percent' %}
+                        {{ voucher.discount_value }}%
+                    {% else %}
+                        {{ '{:,.0f}'.format(voucher.discount_value) }}đ
+                    {% endif %}
+                </div>
+                <p>{{ voucher.description }}</p>
+            </div>
+            <div style="padding:20px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                    <span>Mã voucher:</span>
+                    <strong style="color:#ee4d2d;font-size:1.2rem;">{{ voucher.code }}</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                    <span>Đơn tối thiểu:</span>
+                    <span>{{ '{:,.0f}'.format(voucher.min_order) }}đ</span>
+                </div>
+                {% if voucher.max_discount and voucher.discount_type == 'percent' %}
+                <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                    <span>Giảm tối đa:</span>
+                    <span>{{ '{:,.0f}'.format(voucher.max_discount) }}đ</span>
+                </div>
+                {% endif %}
+                <button class="btn btn-primary btn-lg" style="width:100%;margin-top:15px;"
+                        onclick="copyVoucher('{{ voucher.code }}', this)">
+                    📋 COPY MÃ VOUCHER
+                </button>
+            </div>
+        </div>
+
+        <!-- Related Products -->
+        {% if products %}
+        <h3 style="margin:30px 0 15px;">🛒 Sản phẩm áp dụng</h3>
+        {% for product in products %}
+        <a href="{{ url_for('product_page', product_id=product.id) }}" 
+           style="display:flex;align-items:center;gap:15px;background:white;padding:15px;border-radius:8px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.1);text-decoration:none;color:#333;">
+            <div style="width:80px;height:80px;background:#f8f8f8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;">
+                🛍️
+            </div>
+            <div style="flex:1;">
+                <div style="font-weight:600;margin-bottom:5px;">{{ product.name }}</div>
+                <div>
+                    <span style="color:#ee4d2d;font-weight:700;font-size:1.1rem;">{{ '{:,.0f}'.format(product.sale_price) }}đ</span>
+                    {% if product.original_price > product.sale_price %}
+                    <span style="color:#888;text-decoration:line-through;font-size:0.85rem;margin-left:8px;">{{ '{:,.0f}'.format(product.original_price) }}đ</span>
+                    {% endif %}
+                </div>
+            </div>
+            <span style="color:#ee4d2d;">→</span>
+        </a>
+        {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function copyVoucher(code, btn) {
+    navigator.clipboard.writeText(code).then(() => {
+        const original = btn.innerHTML;
+        btn.innerHTML = '✅ Đã copy!';
+        btn.style.background = '#2dc258';
+        setTimeout(() => {
+            btn.innerHTML = original;
+            btn.style.background = '';
+        }, 2000);
+    });
+}
+</script>
+{% endblock %}
