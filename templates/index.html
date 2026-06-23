@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Hot Deal Shopee - Giảm giá sốc{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero">
+    <h1>🔥 Hot Deal Shopee 🔥</h1>
+    <p>Săn deal giảm giá lên đến 70% + Voucher freeship! Click ngay!</p>
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Tìm sản phẩm giảm giá..." onkeyup="filterProducts()">
+        <button onclick="filterProducts()">Tìm kiếm</button>
+    </div>
+</div>
+
+<!-- Voucher Banner -->
+{% if vouchers %}
+<div class="voucher-banner">
+    <span style="color:white;font-weight:700;">🎫 VOUCHER HOT:</span>
+    {% for voucher in vouchers %}
+    <a href="{{ url_for('voucher_page', voucher_code=voucher.code) }}" class="voucher-chip">
+        {% if voucher.discount_type == 'percent' %}
+            Giảm {{ voucher.discount_value }}%
+        {% else %}
+            Giảm {{ '{:,.0f}'.format(voucher.discount_value) }}đ
+        {% endif %}
+        - {{ voucher.code }}
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Products -->
+<div class="container">
+    <h2 class="section-title">🛒 Sản phẩm giảm giá sốc</h2>
+    <div class="product-grid" id="productGrid">
+        {% for product in products %}
+        <a href="{{ url_for('product_page', product_id=product.id) }}" class="product-card fade-in" data-name="{{ product.name|lower }}">
+            <div class="card-image">
+                {% if product.image_url %}
+                <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy"
+                     onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22><rect fill=%22%23f0f0f0%22 width=%22200%22 height=%22200%22/><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2240%22>🛍️</text></svg>'">
+                {% else %}
+                <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect fill='%23f0f0f0' width='200' height='200'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='40'>🛍️</text></svg>" alt="{{ product.name }}">
+                {% endif %}
+                {% if product.discount_percent > 0 %}
+                <div class="discount-badge">-{{ product.discount_percent }}%</div>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <div class="card-title">{{ product.name }}</div>
+                <div class="card-prices">
+                    <span class="sale-price">{{ '{:,.0f}'.format(product.sale_price) }}đ</span>
+                    {% if product.original_price > product.sale_price %}
+                    <span class="original-price">{{ '{:,.0f}'.format(product.original_price) }}đ</span>
+                    {% endif %}
+                </div>
+                <div class="card-meta">
+                    <span class="rating">⭐ {{ product.rating }}</span>
+                    <span>Đã bán {{ product.sold_count }}</span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    {% if not products %}
+    <div style="text-align:center;padding:60px;color:#888;">
+        <h2>Chưa có sản phẩm nào</h2>
+        <p>Vui lòng quay lại sau!</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filterProducts() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const cards = document.querySelectorAll('.product-card');
+    cards.forEach(card => {
+        const name = card.getAttribute('data-name');
+        card.style.display = name.includes(query) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}
