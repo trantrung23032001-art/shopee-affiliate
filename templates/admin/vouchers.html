@@ -1,0 +1,66 @@
+
+{% extends "admin/base.html" %}
+
+{% block title %}Quản lý Voucher{% endblock %}
+
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;">
+    <h2>🎫 Quản lý Voucher</h2>
+    <a href="{{ url_for('admin_voucher_add') }}" class="btn btn-primary">+ Thêm voucher</a>
+</div>
+
+<div class="table-responsive">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Mã</th>
+                <th>Mô tả</th>
+                <th>Loại</th>
+                <th>Giá trị</th>
+                <th>Đơn tối thiểu</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for v in vouchers %}
+            <tr>
+                <td>{{ v.id }}</td>
+                <td><strong style="color:#ee4d2d;">{{ v.code }}</strong></td>
+                <td>{{ v.description }}</td>
+                <td>
+                    {% if v.discount_type == 'percent' %}
+                    <span class="badge badge-info">Phần trăm</span>
+                    {% else %}
+                    <span class="badge badge-warning">Số tiền</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if v.discount_type == 'percent' %}
+                        {{ v.discount_value }}%
+                    {% else %}
+                        {{ '{:,.0f}'.format(v.discount_value) }}đ
+                    {% endif %}
+                </td>
+                <td>{{ '{:,.0f}'.format(v.min_order) }}đ</td>
+                <td>
+                    {% if v.is_valid() %}
+                    <span class="badge badge-success">Còn hiệu lực</span>
+                    {% else %}
+                    <span class="badge badge-danger">Hết hạn</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('admin_voucher_edit', id=v.id) }}" class="btn btn-sm btn-outline">✏️</a>
+                    <form method="POST" action="{{ url_for('admin_voucher_delete', id=v.id) }}" style="display:inline;"
+                          onsubmit="return confirm('Xóa voucher này?')">
+                        <button type="submit" class="btn btn-sm btn-danger">🗑️</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
