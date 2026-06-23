@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Deal Hot - Săn Sale Shopee{% endblock %}</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="{% block meta_desc %}Săn deal Shopee giá sốc! Voucher giảm giá, freeship - Mua sắm tiết kiệm lên đến 70%{% endblock %}">
+    <meta name="keywords" content="shopee, deal, sale, giảm giá, voucher, freeship, săn sale, mua sắm, giá rẻ, khuyến mãi">
+    <meta name="author" content="Deal Hot">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ request.url }}">
+    
+    <!-- Open Graph (Facebook, Zalo) -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{% block og_title %}Deal Hot - Săn Sale Shopee Giá Sốc{% endblock %}">
+    <meta property="og:description" content="{% block og_desc %}Săn deal Shopee giá sốc! Voucher giảm giá, freeship{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}https://down-vn.img.susercontent.com/file/sg-11134201-22110-1q3j5j7v1gjv00{% endblock %}">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:site_name" content="Deal Hot">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block tw_title %}Deal Hot - Săn Sale Shopee{% endblock %}">
+    <meta name="twitter:description" content="{% block tw_desc %}Săn deal Shopee giá sốc!{% endblock %}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛒</text></svg>">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Flash Messages -->
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="flash-message {{ category }}" onclick="this.remove()">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <a href="{{ url_for('index') }}" class="logo">
+            <svg viewBox="0 0 24 24" fill="white"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+            Shopee Affiliate
+        </a>
+        <nav>
+            <a href="{{ url_for('index') }}">🏠 Trang chủ</a>
+            <a href="{{ url_for('admin_login') }}">⚙️ Quản trị</a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    {% block content %}{% endblock %}
+
+    <!-- Auto-hide flash messages -->
+    <script>
+        setTimeout(() => {
+            document.querySelectorAll('.flash-message').forEach(el => {
+                el.style.transition = 'opacity 0.5s';
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 500);
+            });
+        }, 3000);
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
