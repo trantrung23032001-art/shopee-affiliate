@@ -1,0 +1,108 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Tạo Link Chia Sẻ{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom:25px;">🔗 Tạo Link Chia Sẻ</h2>
+
+<div style="background:white;padding:30px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1);margin-bottom:30px;">
+    <h3 style="margin-bottom:20px;">📋 Hướng dẫn luồng hoạt động</h3>
+    <div style="background:#fff0ed;padding:20px;border-radius:8px;font-size:0.95rem;line-height:1.8;">
+        <strong>🔄 Luồng Affiliate:</strong><br>
+        1️⃣ Bạn chia sẻ link trên <strong>Facebook/TikTok/Zalo/Instagram</strong><br>
+        2️⃣ Người dùng click vào link<br>
+        3️⃣ Website trung gian hiển thị <strong>thông tin sản phẩm + voucher</strong><br>
+        4️⃣ Tự động redirect sang <strong>Shopee Affiliate Link</strong><br>
+        5️⃣ Người dùng mua hàng → <strong>Hệ thống ghi nhận hoa hồng</strong> 💰
+    </div>
+</div>
+
+<!-- Link Generator -->
+{% for product in products %}
+<div style="background:white;padding:25px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1);margin-bottom:15px;">
+    <div style="display:flex;align-items:center;gap:15px;margin-bottom:15px;">
+        <div style="width:60px;height:60px;background:#f8f8f8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;">🛍️</div>
+        <div>
+            <div style="font-weight:600;">{{ product.name }}</div>
+            <div style="color:#ee4d2d;font-weight:700;">{{ '{:,.0f}'.format(product.sale_price) }}đ <span style="color:#888;font-weight:400;text-decoration:line-through;font-size:0.85rem;">{{ '{:,.0f}'.format(product.original_price) }}đ</span></div>
+        </div>
+    </div>
+
+    <!-- Link types -->
+    <div style="margin-bottom:10px;">
+        <label style="font-weight:600;font-size:0.85rem;color:#555;">🔗 Link trang trung gian (hiển thị SP + Voucher + Auto redirect):</label>
+        <div class="link-box">
+            <input type="text" id="link-{{ product.id }}" value="{{ base_url }}/p/{{ product.id }}" readonly>
+            <button class="btn-copy" onclick="copyLink('link-{{ product.id }}')">📋 Copy</button>
+        </div>
+    </div>
+
+    <div style="margin-bottom:10px;">
+        <label style="font-weight:600;font-size:0.85rem;color:#555;">⚡ Link redirect nhanh (thẳng sang Shopee):</label>
+        <div class="link-box">
+            <input type="text" id="quick-{{ product.id }}" value="{{ base_url }}/go/{{ product.shopee_product_id }}" readonly>
+            <button class="btn-copy" onclick="copyLink('quick-{{ product.id }}')">📋 Copy</button>
+        </div>
+    </div>
+
+    <!-- Social share links -->
+    <div style="margin-top:15px;display:flex;gap:8px;flex-wrap:wrap;">
+        <span style="font-size:0.85rem;color:#888;line-height:32px;">Chia sẻ:</span>
+        <a href="https://www.facebook.com/sharer/sharer.php?u={{ base_url }}/p/{{ product.id }}" target="_blank" 
+           style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:#1877f2;color:white;border-radius:6px;font-size:0.8rem;text-decoration:none;">
+            📘 Facebook
+        </a>
+        <a href="https://zalo.me/share?url={{ base_url }}/p/{{ product.id }}" target="_blank"
+           style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:#008f48;color:white;border-radius:6px;font-size:0.8rem;text-decoration:none;">
+            💬 Zalo
+        </a>
+        <a href="https://www.tiktok.com/" target="_blank"
+           style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:#000;color:white;border-radius:6px;font-size:0.8rem;text-decoration:none;">
+            🎵 TikTok
+        </a>
+        <a href="https://t.me/share/url?url={{ base_url }}/p/{{ product.id }}&text={{ product.name }}" target="_blank"
+           style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:#0088cc;color:white;border-radius:6px;font-size:0.8rem;text-decoration:none;">
+            ✈️ Telegram
+        </a>
+    </div>
+
+    <!-- Source tracking links -->
+    <details style="margin-top:15px;">
+        <summary style="cursor:pointer;color:#ee4d2d;font-size:0.85rem;font-weight:600;">📊 Link theo dõi nguồn (Source Tracking)</summary>
+        <div style="margin-top:10px;display:grid;gap:8px;">
+            {% for source in ['facebook', 'tiktok', 'zalo', 'instagram', 'youtube', 'telegram'] %}
+            <div class="link-box">
+                <input type="text" id="src-{{ product.id }}-{{ source }}" value="{{ base_url }}/p/{{ product.id }}?source={{ source }}" readonly style="font-size:0.85rem;">
+                <button class="btn-copy" onclick="copyLink('src-{{ product.id }}-{{ source }}')" style="font-size:0.8rem;padding:8px 15px;">📋 {{ source }}</button>
+            </div>
+            {% endfor %}
+        </div>
+    </details>
+</div>
+{% endfor %}
+
+{% if not products %}
+<div style="text-align:center;padding:40px;color:#888;">
+    <p>Chưa có sản phẩm. <a href="{{ url_for('admin_product_add') }}">Thêm sản phẩm</a></p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyLink(inputId) {
+    const input = document.getElementById(inputId);
+    input.select();
+    navigator.clipboard.writeText(input.value).then(() => {
+        const btn = input.parentElement.querySelector('.btn-copy');
+        const original = btn.textContent;
+        btn.textContent = '✅ Đã copy!';
+        btn.style.background = '#2dc258';
+        setTimeout(() => {
+            btn.textContent = original;
+            btn.style.background = '';
+        }, 1500);
+    });
+}
+</script>
+{% endblock %}
