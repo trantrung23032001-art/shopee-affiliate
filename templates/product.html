@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - Giảm {{ product.discount_percent }}% | Deal Hot{% endblock %}
+{% block meta_desc %}Mua {{ product.name }} giá chỉ {{ '{:,.0f}'.format(product.sale_price) }}đ. Giảm {{ product.discount_percent }}%! {% if vouchers %}Kèm voucher {% for v in vouchers %}{{ v.code }} {% endfor %}{% endif %}Freeship{% endblock %}
+{% block og_title %}{{ product.name }} - Giảm {{ product.discount_percent }}%{% endblock %}
+{% block og_desc %}Chỉ {{ '{:,.0f}'.format(product.sale_price) }}đ! {% if vouchers %}Kèm voucher {% for v in vouchers %}{{ v.code }} {% endfor %}{% endif %}{% endblock %}
+{% block og_image %}{{ product.image_url or '' }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.product-breadcrumb { padding:10px 0; font-size:0.85rem; color:#888; }
+.product-breadcrumb a { color:#ee4d2d; text-decoration:none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb SEO -->
+<div class="product-breadcrumb">
+    <a href="{{ url_for('index') }}">Trang chủ</a> > 
+    <a href="{{ url_for('index') }}">{{ product.category or 'Sản phẩm' }}</a> > 
+    {{ product.name }}
+</div>
+
+<!-- Redirect Countdown Bar -->
+<div class="redirect-bar">
+    <div class="countdown">
+        🔄 Tự động chuyển Shopee sau <span id="countdown">{{ redirect_delay }}</span> giây
+    </div>
+    <button class="btn-go pulse" onclick="goToShopee()">
+        🛒 Mua ngay trên Shopee
+    </button>
+</div>
+
+<!-- Product Detail -->
+<div class="container">
+    <div class="product-detail fade-in">
+        <div class="detail-header">
+            <!-- Product Image -->
+            <div class="product-image">
+                {% if product.image_url %}
+                <img src="{{ product.image_url }}" alt="{{ product.name }}"
+                     onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 400%22><rect fill=%22%23f0f0f0%22 width=%22400%22 height=%22400%22/><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2260%22>🛍️</text></svg>'">
+                {% else %}
+                <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'><rect fill='%23f0f0f0' width='400' height='400'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='60'>🛍️</text></svg>" alt="{{ product.name }}">
+                {% endif %}
+            </div>
+
+            <!-- Product Info -->
+            <div class="product-info">
+                <h1>{{ product.name }}</h1>
+
+                <!-- Price Block -->
+                <div class="price-block">
+                    <span class="sale-price">{{ '{:,.0f}'.format(product.sale_price) }}đ</span>
+                    {% if product.original_price > product.sale_price %}
+                    <span class="original-price">{{ '{:,.0f}'.format(product.original_price) }}đ</span>
+                    <span class="discount">-{{ product.discount_percent }}%</span>
+                    {% endif %}
+                </div>
+
+                <!-- Stats -->
+                <div class="product-stats">
+                    <div class="stat">⭐ {{ product.rating }}/5</div>
+                    <div class="stat">📦 Đã bán {{ '{:,.0f}'.format(product.sold_count) }}</div>
+                    {% if product.category %}
+                    <div class="stat">🏷️ {{ product.category }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Description -->
+                {% if product.description %}
+                <p style="color:#555;margin-bottom:20px;">{{ product.description }}</p>
+                {% endif %}
+
+                <!-- CTA Button -->
+                <button class="btn btn-primary btn-lg pulse" onclick="goToShopee()" style="width:100%;margin-top:10px;">
+                    🛒 MUA NGAY TRÊN SHOPEE - GIẢM {{ product.discount_percent }}%
+                </button>
+            </div>
+        </div>
+
+        <!-- Vouchers Section -->
+        {% if vouchers %}
+        <div style="padding:0 30px 30px;">
+            <h3 style="margin-bottom:15px;">🎫 Voucher áp dụng</h3>
+            <div class="voucher-list">
+                {% for voucher in vouchers %}
+                <div class="voucher-item">
+                    <div class="voucher-left">
+                        <div class="voucher-value">
+                            {% if voucher.discount_type == 'percent' %}
+                                {{ voucher.discount_value }}%
+                            {% else %}
+                                {{ '{:,.0f}'.format(voucher.discount_value) }}đ
+                            {% endif %}
+                        </div>
+                        <div class="voucher-type">
+                            {% if voucher.discount_type == 'percent' %}Giảm{% else %}Trừ{% endif %}
+                        </div>
+                    </div>
+                    <div class="voucher-right">
+                        <div class="voucher-desc">{{ voucher.description }}</div>
+                        <div class="voucher-min">
+                            Đơn tối thiểu {{ '{:,.0f}'.format(voucher.min_order) }}đ
+                            {% if voucher.max_discount and voucher.discount_type == 'percent' %}
+                            · Giảm tối đa {{ '{:,.0f}'.format(voucher.max_discount) }}đ
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="voucher-code" onclick="copyVoucher('{{ voucher.code }}', this)">
+                        {{ voucher.code }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Source Info (for debugging) -->
+    {% if source and source != 'direct' %}
+    <div style="text-align:center;padding:10px;color:#888;font-size:0.85rem;">
+        Nguồn: <span class="source-badge source-{{ source }}">{{ source }}</span>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Hidden affiliate URL -->
+<input type="hidden" id="affiliateUrl" value="{{ affiliate_url }}">
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Countdown & Auto Redirect
+    let seconds = {{ redirect_delay }};
+    const countdownEl = document.getElementById('countdown');
+    const affiliateUrl = document.getElementById('affiliateUrl').value;
+
+    const timer = setInterval(() => {
+        seconds--;
+        countdownEl.textContent = seconds;
+        if (seconds <= 0) {
+            clearInterval(timer);
+            goToShopee();
+        }
+    }, 1000);
+
+    function goToShopee() {
+        clearInterval(timer);
+        window.location.href = affiliateUrl;
+    }
+
+    function copyVoucher(code, el) {
+        navigator.clipboard.writeText(code).then(() => {
+            const original = el.textContent;
+            el.textContent = '✓ Đã copy!';
+            el.style.background = '#2dc258';
+            setTimeout(() => {
+                el.textContent = original;
+                el.style.background = '';
+            }, 1500);
+        });
+    }
+</script>
+{% endblock %}
