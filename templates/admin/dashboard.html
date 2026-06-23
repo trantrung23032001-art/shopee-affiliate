@@ -1,0 +1,97 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom:25px;">📊 Dashboard</h2>
+
+<!-- Stat Cards -->
+<div class="stat-cards">
+    <div class="stat-card">
+        <div class="stat-icon orange">🛍️</div>
+        <div class="stat-label">Sản phẩm</div>
+        <div class="stat-value">{{ total_products }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">🎫</div>
+        <div class="stat-label">Voucher active</div>
+        <div class="stat-value">{{ total_vouchers }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue">🖱️</div>
+        <div class="stat-label">Tổng click</div>
+        <div class="stat-value">{{ total_clicks }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon red">📅</div>
+        <div class="stat-label">Click hôm nay</div>
+        <div class="stat-value">{{ today_clicks }}</div>
+    </div>
+</div>
+
+<!-- Source Stats -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <div style="background:white;border-radius:12px;padding:25px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+        <h3 style="margin-bottom:15px;">📈 Click theo nguồn</h3>
+        {% if source_stats %}
+        {% for source, count in source_stats %}
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #eee;">
+            <span class="source-badge source-{{ source }}">{{ source }}</span>
+            <strong>{{ count }} clicks</strong>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p style="color:#888;">Chưa có dữ liệu</p>
+        {% endif %}
+    </div>
+
+    <div style="background:white;border-radius:12px;padding:25px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+        <h3 style="margin-bottom:15px;">🏆 Sản phẩm click nhiều nhất</h3>
+        {% if top_products %}
+        {% for name, clicks in top_products %}
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #eee;">
+            <span style="font-size:0.9rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ name }}</span>
+            <strong style="color:#ee4d2d;">{{ clicks }}</strong>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p style="color:#888;">Chưa có dữ liệu</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Daily Stats -->
+{% if stats %}
+<div style="background:white;border-radius:12px;padding:25px;box-shadow:0 2px 8px rgba(0,0,0,0.1);margin-top:20px;">
+    <h3 style="margin-bottom:15px;">📊 Thống kê 7 ngày gần nhất</h3>
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Ngày</th>
+                    <th>Tổng click</th>
+                    <th>Facebook</th>
+                    <th>TikTok</th>
+                    <th>Zalo</th>
+                    <th>Instagram</th>
+                    <th>Khác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in stats %}
+                <tr>
+                    <td>{{ s.date }}</td>
+                    <td><strong>{{ s.total_clicks }}</strong></td>
+                    <td>{{ s.facebook_clicks }}</td>
+                    <td>{{ s.tiktok_clicks }}</td>
+                    <td>{{ s.zalo_clicks }}</td>
+                    <td>{{ s.instagram_clicks }}</td>
+                    <td>{{ s.other_clicks }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
