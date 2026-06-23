@@ -1,0 +1,70 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ 'Sửa sản phẩm' if product else 'Thêm sản phẩm' }}{% endblock %}
+
+{% block content %}
+<div style="max-width:700px;">
+    <h2 style="margin-bottom:25px;">{{ '✏️ Sửa sản phẩm' if product else '➕ Thêm sản phẩm mới' }}</h2>
+
+    <form method="POST" style="background:white;padding:30px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+        <div class="form-group">
+            <label>Tên sản phẩm *</label>
+            <input type="text" name="name" class="form-control" value="{{ product.name if product else '' }}" required>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+            <div class="form-group">
+                <label>Shopee Product ID *</label>
+                <input type="text" name="shopee_product_id" class="form-control" value="{{ product.shopee_product_id if product else '' }}" required>
+            </div>
+            <div class="form-group">
+                <label>Danh mục</label>
+                <input type="text" name="category" class="form-control" value="{{ product.category if product else '' }}">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>URL Shopee *</label>
+            <input type="url" name="shopee_url" class="form-control" value="{{ product.shopee_url if product else '' }}" required placeholder="https://shopee.vn/...">
+        </div>
+        <div class="form-group">
+            <label>URL Hình ảnh</label>
+            <input type="url" name="image_url" class="form-control" value="{{ product.image_url if product else '' }}" placeholder="https://...">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px;">
+            <div class="form-group">
+                <label>Giá gốc (VNĐ)</label>
+                <input type="number" name="original_price" class="form-control" value="{{ product.original_price if product else '0' }}" min="0">
+            </div>
+            <div class="form-group">
+                <label>Giá sale (VNĐ)</label>
+                <input type="number" name="sale_price" class="form-control" value="{{ product.sale_price if product else '0' }}" min="0">
+            </div>
+            <div class="form-group">
+                <label>Giảm giá (%)</label>
+                <input type="number" name="discount_percent" class="form-control" value="{{ product.discount_percent if product else '0' }}" min="0" max="100">
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+            <div class="form-group">
+                <label>Rating (1-5)</label>
+                <input type="number" name="rating" class="form-control" value="{{ product.rating if product else '5' }}" min="0" max="5" step="0.1">
+            </div>
+            <div class="form-group">
+                <label>Đã bán</label>
+                <input type="number" name="sold_count" class="form-control" value="{{ product.sold_count if product else '0' }}" min="0">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Mô tả</label>
+            <textarea name="description" class="form-control">{{ product.description if product else '' }}</textarea>
+        </div>
+        <div class="form-group form-check">
+            <input type="checkbox" name="is_active" id="is_active" {% if not product or product.is_active %}checked{% endif %}>
+            <label for="is_active">Hiển thị sản phẩm</label>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:20px;">
+            <button type="submit" class="btn btn-primary btn-lg">{{ '💾 Cập nhật' if product else '➕ Thêm sản phẩm' }}</button>
+            <a href="{{ url_for('admin_products') }}" class="btn btn-outline btn-lg">Hủy</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
