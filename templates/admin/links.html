@@ -93,16 +93,43 @@
 function copyLink(inputId) {
     const input = document.getElementById(inputId);
     input.select();
-    navigator.clipboard.writeText(input.value).then(() => {
-        const btn = input.parentElement.querySelector('.btn-copy');
-        const original = btn.textContent;
-        btn.textContent = '✅ Đã copy!';
-        btn.style.background = '#2dc258';
-        setTimeout(() => {
-            btn.textContent = original;
-            btn.style.background = '';
-        }, 1500);
-    });
+    input.setSelectionRange(0, 99999); // For mobile
+    
+    try {
+        // Try modern clipboard API first (requires HTTPS)
+        navigator.clipboard.writeText(input.value).then(() => {
+            showCopied(input);
+        }).catch(() => {
+            // Fallback: use execCommand (works on HTTP)
+            fallbackCopy(input);
+        });
+    } catch (e) {
+        // Fallback for older browsers or HTTP
+        fallbackCopy(input);
+    }
+}
+
+function fallbackCopy(input) {
+    document.execCommand('copy');
+    showCopied(input);
+}
+
+function showCopied(input) {
+    const parent = input.parentElement;
+    let btn = parent.querySelector('.btn-copy');
+    if (!btn) {
+        // Try finding any button inside parent
+        btn = parent.querySelector('button');
+    }
+    if (!btn) return;
+    
+    const original = btn.textContent;
+    btn.textContent = '✅ Đã copy!';
+    btn.style.background = '#2dc258';
+    setTimeout(() => {
+        btn.textContent = original;
+        btn.style.background = '';
+    }, 1500);
 }
 </script>
 {% endblock %}
